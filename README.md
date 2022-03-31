@@ -1,9 +1,8 @@
 ---
 <img src="https://www.scala-lang.org/resources/img/frontpage/scala-spiral.png" width="50" height="70">
 
-
+---
 # Simple Scala Bootstrap
-___
 The *Simple Scala Bootstrap* project is an open-source project created to provide developers with a quick and simple way to get a Scala service with the basic functionality required, running. 
 
 The project consists of two parts, each contributing to the ultimate purpose of getting you running as soon as possible:
@@ -12,8 +11,7 @@ The project consists of two parts, each contributing to the ultimate purpose of 
 - *Simple Scala* template service
   - This is a basic DDD and onion-architecture-based Scala service which demonstrates the use of the Simple Scala utility library. It also demonstrates the implementation of DDD and the onion-architecture in the service's folder structure - something that is essential to achieving a [screaming architecture](https://blog.cleancoder.com/uncle-bob/2011/09/30/Screaming-Architecture.html) repository.
   
-##The Simple Scala Utility Library
-___
+## The Simple Scala Utility Library
 - A Utility Library that provides you with essential functionality to bootstrap and easily implement additional features in your Scala service. 
 Below are the utilities currently provided:
 - Transport (`/transport`)
@@ -30,7 +28,6 @@ Below are the utilities currently provided:
 - Time (`/time`)
 
 ## The Simple Scala Template Service
-___
 A ready-to-run Scala service serving three purposes:
 1. Demonstrates the use of the Simple Scala utility library through implementation and examples.
 2. Provides a ready-to-use folder structure based on DDD and the Onion-Architecture.
@@ -56,19 +53,19 @@ For more details on the architecture style followed in this repo, see
 - [Domain-Driven Design: What is it and how do you use it?](https://airbrake.io/blog/software-design/domain-driven-design)
 - [The Onion Architecture by Jeffrey Palermo](https://jeffreypalermo.com/2008/07/the-onion-architecture-part-1/)
 
-###API Calls
+### API Calls
 To interact with the server when running it out of the box, you can use the following cURL commands to play around with the `/people` router.
-####Health Check `v1/health`
+#### Health Check `v1/health`
 Receives a status-code 200 if the service is up and all components of it are healthy
 ```
 curl --location --request GET 'http://localhost:21001/health'
 ```
-####Get Random Person `v1/people/random`
+#### Get Random Person `v1/people/random`
 Retrieves a randomly generated person
 ```
 curl --location --request GET 'http://localhost:21001/v1/people/random'
 ```
-####Post Person `v1/people`
+#### Post Person `v1/people`
 Add a new person
 ```
 curl --location --request POST 'http://localhost:21001/v1/people/' \
@@ -80,21 +77,19 @@ curl --location --request POST 'http://localhost:21001/v1/people/' \
     "surname": "Barks"
 }'
 ```
-####Get Person By ID `v1/people/<PERSON_ID>`
+#### Get Person By ID `v1/people/<PERSON_ID>`
 Retrieves a person using that persons ID
 ```
 curl --location --request GET 'http://localhost:21001/v1/people/d448f1f3-17b0-4b58-944d-d561dd0f87d1'
 ```
 
 
-#Keen to Contribute?
-___
+# Keen to Contribute?
 We are always striving to grow the utility library to include more useful functionality. If you are interested in contributing, have a look at the Development Backlog below to see which tasks you want to give a stab at.
 
 Also feel free to take on general improvements and refactoring as you see fit.
 
-##Development Backlog
-___
+## Development Backlog
 These are the aspects we still wish to incorporate into this library. Feel free to take on any of them. Below is a list RANKED (by priority) items we want to add to the project.
 - Validation
   - Implement validation helper methods for data validation at service, repo and API levels using monad transformers, type classes and tagless final.
