@@ -3,7 +3,7 @@
 
 ---
 # Simple Scala Bootstrap
-The *Simple Scala Bootstrap* project is an open-source project created to provide developers with a quick and simple way to get a Scala service with the basic functionality required, running. 
+The *Simple Scala Bootstrap* project is an open-source project created to provide developers with a quick and simple way to get a Scala service with the most essential functionality required, running. 
 
 The project consists of two parts, each contributing to the ultimate purpose of getting you running as soon as possible:
 - *Simple Scala* Util Library
@@ -12,7 +12,7 @@ The project consists of two parts, each contributing to the ultimate purpose of 
   - This is a basic DDD and onion-architecture-based Scala service which demonstrates the use of the Simple Scala utility library. It also demonstrates the implementation of DDD and the onion-architecture in the service's folder structure - something that is essential to achieving a [screaming architecture](https://blog.cleancoder.com/uncle-bob/2011/09/30/Screaming-Architecture.html) repository.
   
 ## The Simple Scala Utility Library
-- A Utility Library that provides you with essential functionality to bootstrap and easily implement additional features in your Scala service. 
+A Utility Library that provides you with essential functionality to bootstrap and easily implement additional features in your Scala service. 
 Below are the utilities currently provided:
 - Transport (`/transport`)
   - Internal application DTOs for passing around information in an async ([Monix-based](https://monix.io/docs/current/eval/task.html)), functional manner
