@@ -1,10 +1,22 @@
 ---
-<img src="https://www.scala-lang.org/resources/img/frontpage/scala-spiral.png" width="50" height="70">
 
+<p align="center"><a target="_blank" rel="noopener noreferrer"><img width="80" src="https://www.scala-lang.org/resources/img/frontpage/scala-spiral.png" alt="Vue logo"></a></p>
+
+
+[![Pull Requests Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat)](http://makeapullrequest.com)
+![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)
 ---
-# Simple Scala Bootstrap
-The *Simple Scala Bootstrap* project is an open-source project created to provide developers with a quick and simple way to get a Scala service with the most essential functionality required, running. 
+# The Simple Scala Bootstrap Project
+The Simple Scala Bootstrap project is an open-source project created to provide developers with a quick and simple way to get a Scala service with the most essential functionality required, running. 
 
+## Table of Contents
+- [Overview](#overview)
+- [The Simple Scala Utility Library](#the-simple-scala-utility-library)
+- [The Simple Scala Template Service](#the-simple-scala-template-service)
+- [Development Backlog](#development-backlog)
+- [License](#license)
+
+### Overview
 The project consists of two parts, each contributing to the ultimate purpose of getting you running as soon as possible:
 - *Simple Scala* Util Library
   - A Utility Library providing out-of-the-box functionality for HTTP API server and route setup, error-handling, service DTOs, validation, JSON utils, and implementations for some database and queueing technologies. See [The Simple Scala Utility](##the-simple-scala-utility-library) section for more details
@@ -83,11 +95,12 @@ Retrieves a person using that persons ID
 curl --location --request GET 'http://localhost:21001/v1/people/d448f1f3-17b0-4b58-944d-d561dd0f87d1'
 ```
 
-
 # Keen to Contribute?
-We are always striving to grow the utility library to include more useful functionality. If you are interested in contributing, have a look at the Development Backlog below to see which tasks you want to give a stab at.
+We are always striving to grow the utility library to include more useful functionality, and we really mainly on the community to do so. If you are interested in contributing, have a look at the Development Backlog below to see which tasks you want to give a stab at.
 
 Also feel free to take on general improvements and refactoring as you see fit.
+
+See our [contribution guideline](./CONTRIBUTE.md) on best practices for contributing.
 
 ## Development Backlog
 These are the aspects we still wish to incorporate into this library. Feel free to take on any of them. Below is a list RANKED (by priority) items we want to add to the project.
@@ -118,3 +131,16 @@ These are the aspects we still wish to incorporate into this library. Feel free 
     - RabbitMQ infrastructure and implementation utilities to allow the service to use RabbitMQ as a repository and API implementation.
 - Prometheus HTTP Metrics Endpoint
     - Provide HTTP-level performance metrics that can be retrieved by [Prometheus](https://prometheus.io/) via an exposed endpoint.
+
+## The Other Things
+### License
+
+Simple Scala Bootstrap is [MIT licensed](./LICENSE).
+
+Copyright <YEAR> <COPYRIGHT HOLDER>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
