@@ -7,7 +7,7 @@ object Libraries {
     val akkaScala3    = "2.6.19"
     val akkaHttp      = "10.2.9"
     val monix         = "3.4.0"
-    val mongoScalaDriver = "4.1.1"
+    val mongoScalaDriver = "4.5.1"
     val cats          = "2.7.0"
     val netty         = "4.1.17.Final"
     val json4s        = "4.0.4"

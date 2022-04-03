@@ -20,6 +20,23 @@ object ResultET extends TransportUtils[ResultET] {
   override def left[Unit](fault: Fault): ResultET[Unit] = EitherT.leftT[Task, Unit](fault)
   
   override def fromResult[A](result: Result[A]): ResultET[A]  = EitherT.fromEither[Task](result)
-  private def fromResultA[A](result: ResultA[A]): ResultET[A] = EitherT(result)
+  def fromResultA[A](result: ResultA[A]): ResultET[A] = EitherT(result)
+  
+  override def tapRight[A](self: ResultET[A], fr: A => Unit): ResultET[A] = {
+    self.bimap(
+      { fault => fault },
+      { value => try fr(value); value } //try and ignore failure
+    )
+  }
+
+  override def tapLeft[A](self: ResultET[A], fl: Fault => Unit): ResultET[A] = {
+    self.bimap(
+      { fault => try fl(fault); fault },
+      { value => value }
+    )
+  }
+
+  override def mapToUnit[A](transport: ResultET[A]): ResultET[Unit] =
+    transport.map(_ => ())
 
 }

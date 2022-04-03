@@ -10,8 +10,22 @@ trait TransportUtils[M[_]] {
   def left[A](fault: Fault): M[A]
   def left[A](message: String): M[A] = left(Fault(message))
   def left[Unit](ex: Throwable): M[Unit] = left(Fault(ex))
-
+  
   def fromResult[A](result: Result[A]): M[A]
+
+  /**
+   * performs a tap on the right side value (if right-based), 
+   * and ignores any failures that occurs in the process
+   */
+  def tapRight[A](self: M[A], fr: A => Unit): M[A]
+
+  /**
+   * performs a tap on the left side value (if left-based), 
+   * and ignores any failures that occurs in the process
+   */
+  def tapLeft[A](self: M[A], fl: Fault => Unit): M[A]
+  
+  def mapToUnit[A](transport: M[A]): M[Unit]
 
   /**
    * Extracts a value out of the option or returns an [[Erratum]]

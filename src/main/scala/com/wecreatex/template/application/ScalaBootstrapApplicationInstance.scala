@@ -23,10 +23,15 @@ class ScalaBootstrapApplicationInstance
   extends ApplicationInstance 
     with HttpApiInstance 
     with ServiceInstances
-    with InMemoryRepoInstances {
+    with InMemoryRepoInstances
+    with MongoCollectionInstances {
 
   override protected def instancesStartupImplementation: ResultA[Unit] = {
-    startFromEnvironment().liftA
+    val result = for {
+      _ <- startHttpApiFromEnvironment().liftET
+      _ <- startMongoDb.liftET
+    } yield ()
+    result.value
   }
 
 }

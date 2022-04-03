@@ -22,18 +22,28 @@ object ResultA extends TransportUtils[ResultA] {
   override def unit: ResultA[Unit] = right(())
   override def right[A](a: A): ResultA[A] = Task.pure(Right(a))
   override def left[Unit](fault: Fault): ResultA[Unit] = Task.pure(Left(fault))
-
+  
   override def fromResult[A](result: Result[A]): ResultA[A] =
     Task.pure(result)
 
+  override def tapRight[A](self: ResultA[A], fr: A => Unit): ResultA[A] = {
+    self.map(Result.tapRight(_, fr))
+  }
+
+  override def tapLeft[A](self: ResultA[A], fl: Fault => Unit): ResultA[A] = {
+    self.map(Result.tapLeft(_, fl))
+  }
+  
   def fromFuture[A](future: Future[A])(implicit ec: ExecutionContext): ResultA[A] = {
     val futureResult = future
       .map[Result[A]](Right(_))
       .recover {
         case NonFatal(ex) => Left(Fault(ex))
       }
-
     Task.fromFuture(futureResult)
   }
+
+  override def mapToUnit[A](transport: ResultA[A]): ResultA[Unit] =
+    transport.map(_.map(_ => ()))
 
 }

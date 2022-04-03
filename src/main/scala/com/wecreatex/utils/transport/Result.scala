@@ -22,4 +22,21 @@ object Result extends TransportUtils[Result] {
 
   override def fromResult[A](result: Result[A]): Result[A] = result
 
+  override def tapRight[A](self: Result[A], fr: A => Unit): Result[A] = self match {
+    case Right(value) => Result
+      .attemptUnsafe(fr(value))
+      .flatMap(_ => self)
+    case _ => self
+  }
+
+  override def tapLeft[A](self: Result[A], fl: Fault => Unit): Result[A] = self match {
+    case Left(fault) => Result
+      .attemptUnsafe(fl(fault))
+      .flatMap(_ => self)
+    case _ => self
+  }
+
+  override def mapToUnit[A](transport: Result[A]): Result[Unit] =
+    transport.map(_ => ())
+
 }

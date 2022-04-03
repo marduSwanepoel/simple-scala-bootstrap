@@ -18,37 +18,47 @@ object TransportImplicits {
     def liftET(message: String): ResultET[A] = resultETUtils.fromOption(option, Fault.apply(message))
   }
 
+  implicit class EitherErrorImplicits[A](val either: Either[Throwable, A]) extends AnyVal {
+    def wrapR(ifError: Throwable => Fault): Result[A] = either match {
+      case Left(th)     => Result.left(ifError(th))
+      case Right(value) => Result.right(value)
+    }
+  }
+
   implicit class FaultImplicits(val fault: Fault) extends AnyVal {
     def liftR: Result[Unit] = resultUtils.left(fault)
     def liftA: ResultA[Unit] = resultAUtils.left(fault)
     def liftET: ResultET[Unit] = resultETUtils.left(fault)
   }
 
-  trait TransportUtilsImplicits[M[_], A](val target: M[A])(implicit util: TransportUtils[M]) {
-
-    def ensureElseFault(predicate: => Boolean, ifFalse: => Fault): M[A] =
-      util.conditional(predicate, ifFalse)(target)
-
-  }
-
   //TODO test this and if it works, convert the rest to use this format
-  implicit class ResultImplicitsTT[A](val result: Result[A]) extends TransportUtilsImplicits[Result, A](result) {
-
-
-  }
+//  trait TransportUtilsImplicits[M[_], A](val target: M[A])(implicit util: TransportUtils[M]) {
+//
+//    def ensureElseFault(predicate: => Boolean, ifFalse: => Fault): M[A] =
+//      util.conditional(predicate, ifFalse)(target)
+//
+//  }
 
   implicit class ResultImplicits[A](val result: Result[A]) extends AnyVal {
     def liftA: ResultA[A] = resultAUtils.fromResult(result)
     def liftET: ResultET[A] = resultETUtils.fromResult(result)
+
+    def tapRight(fr: A => Unit): Result[A]    = resultUtils.tapRight(result, fr)
+    def tapLeft(fl: Fault => Unit): Result[A] = resultUtils.tapLeft(result, fl)
 
     def ensureElseFault(predicate: => Boolean, ifFalse: => Fault): Result[A] =
       resultUtils.conditional(predicate, ifFalse)(result)
 
     def ensureElseReplace(predicate: => Boolean, ifFalse: Result[A]): Result[A] =
       resultUtils.conditional(predicate, result, ifFalse)
+
+    def mapToUnit: Result[Unit] = resultUtils.mapToUnit(result)
   }
 
   implicit class ResultAImplicits[A](val result: ResultA[A]) extends AnyVal {
+
+    def liftET: ResultET[A] = ResultET.fromResultA(result)
+    
     def ensureElseFault(predicate: => Boolean, ifFalse: => Fault): ResultA[A] =
       resultAUtils.conditional(predicate, ifFalse)(result)
 
@@ -65,16 +75,23 @@ object TransportImplicits {
       }
     }
 
-    def tapRight(code: A => Unit): ResultA[A]    = result.tap(_.foreach(code))
-    def tapLeft(code: Fault => Unit): ResultA[A] = result.tap(_.left.foreach(code))
+    def tapRight(fr: A => Unit): ResultA[A]    = resultAUtils.tapRight(result, fr)
+    def tapLeft(fl: Fault => Unit): ResultA[A] = resultAUtils.tapLeft(result, fl)
+
+    def mapToUnit: ResultA[Unit] = resultAUtils.mapToUnit(result)
   }
 
   implicit class ResultETImplicits[A](val result: ResultET[A]) extends AnyVal {
+    def tapRight(fr: A => Unit): ResultET[A]    = resultETUtils.tapRight(result, fr)
+    def tapLeft(fl: Fault => Unit): ResultET[A] = resultETUtils.tapLeft(result, fl)
+
     def ensureElseFault(predicate: => Boolean, ifFalse: => Fault): ResultET[A] =
       resultETUtils.conditional(predicate, ifFalse)(result)
 
     def ensureElseReplace(predicate: => Boolean, ifFalse: ResultET[A]): ResultET[A] =
       resultETUtils.conditional(predicate, result, ifFalse)
+
+    def mapToUnit: ResultET[Unit] = resultETUtils.mapToUnit(result)
   }
 
 }

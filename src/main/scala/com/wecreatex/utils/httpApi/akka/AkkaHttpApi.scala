@@ -39,13 +39,13 @@ trait AkkaHttpApi extends HttpApi {
 
   protected lazy val allRoutesWithHealth: Route = routers.foldLeft(healthRoute){ case (routes, router) =>  routes ~ router.routes }
 
-  override def startFromEnvironment(): Result[Unit] = {
+  override def startHttpApiFromEnvironment(): Result[Unit] = {
     AkkaServerConfig
       .loadFromEnv
-      .flatMap(startFromConfig)
+      .flatMap(startHttpApiFromConfig)
   }
 
-  override def startFromConfig(config: AkkaServerConfig): Result[Unit] = {
+  override def startHttpApiFromConfig(config: AkkaServerConfig): Result[Unit] = {
     Result.attemptUnsafe(startUnsafe(config))
   }
 

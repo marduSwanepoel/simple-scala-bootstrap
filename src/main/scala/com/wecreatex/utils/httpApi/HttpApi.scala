@@ -13,7 +13,6 @@ import scala.concurrent.ExecutionContext
  */
 trait HttpApi extends LoggingUtils {
 
-  /**  */
   protected type RoutesType
 
   protected type ConfigType <: HttpApiConfig
@@ -29,10 +28,10 @@ trait HttpApi extends LoggingUtils {
   protected lazy val allRoutesWithHealth: RoutesType
 
   /** Requires an implementation to startup the API server by drawing the config from environmental variables */
-  def startFromEnvironment(): Result[Unit]
+  def startHttpApiFromEnvironment(): Result[Unit]
 
   /** Requires an implementation to startup the API server by using a passed-in config */
-  def startFromConfig(config: ConfigType): Result[Unit]
+  def startHttpApiFromConfig(config: ConfigType): Result[Unit]
 
   /** Requires a health-route implementation that provides a health-status of the service and its internal components */
   protected val healthRoute: RoutesType
