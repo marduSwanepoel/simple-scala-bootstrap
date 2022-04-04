@@ -14,6 +14,7 @@ The Simple Scala Bootstrap project is an open-source project created to provide 
 - [The Simple Scala Utility Library](#the-simple-scala-utility-library)
 - [The Simple Scala Template Service](#the-simple-scala-template-service)
 - [Development Backlog](#development-backlog)
+- [Running the Application & Dependencies](#running-the-application-and-dependencies)
 - [License](#license)
 
 ### Overview
@@ -132,7 +133,24 @@ These are the aspects we still wish to incorporate into this library. Feel free 
 - Prometheus HTTP Metrics Endpoint
     - Provide HTTP-level performance metrics that can be retrieved by [Prometheus](https://prometheus.io/) via an exposed endpoint.
 
-## The Other Things
+## Running the Application and Dependencies
+
+### Scala Environment
+<requires_completion>
+
+### Infrastructure Support
+#### MongoDB
+To quickly spin up a stateless MongoDB server to get going asap, run the following command (with Docker running):
+```dockerfile
+docker run -p 27017:27017 \
+    --name simple-scala-mongo \
+    -e MONGO_INITDB_ROOT_USERNAME=mongoadmin \
+    -e MONGO_INITDB_ROOT_PASSWORD=admin \
+    mongo:5.0.6
+```
+
+
+## Some Other Important Things
 ### License
 
 Simple Scala Bootstrap is [MIT licensed](./LICENSE).
