@@ -19,8 +19,7 @@ class PeopleMongoRepository(implicit database: MongoDatabase) extends PeopleRepo
   private val inMemoryMap: mutable.Map[PersonId, Person] = TrieMap.empty[PersonId, Person]
 
   def insertPerson(person: Person): ResultA[Person] = {
-    inMemoryMap.addOne(person.id, person)
-    ResultA.right(person)
+    insert(person)
   }
 
   def getPersonById(id: String): ResultA[Person] = {

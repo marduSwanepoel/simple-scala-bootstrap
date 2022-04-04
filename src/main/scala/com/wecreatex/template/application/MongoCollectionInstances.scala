@@ -6,8 +6,8 @@ import com.wecreatex.utils.database.mongodb.{MongoCollectionProvider, MongoDatab
 
 trait MongoCollectionInstances extends MongoDatabaseProvider {
 
-  lazy val peopleCollection: MongoCollectionProvider[Person] & PeopleRepo = new PeopleMongoRepository
+  lazy val peopleRepo: MongoCollectionProvider[Person] & PeopleRepo = new PeopleMongoRepository
 
-  override protected lazy val collections: List[MongoCollectionProvider[_]] = List(peopleCollection)
+  override protected lazy val collections: List[MongoCollectionProvider[_]] = List(peopleRepo)
 
 }
