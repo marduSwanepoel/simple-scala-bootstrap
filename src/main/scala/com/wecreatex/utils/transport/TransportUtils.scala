@@ -3,7 +3,7 @@ package com.wecreatex.utils.transport
 import monix.eval.Task
 import scala.util.control.NonFatal
 
-trait TransportUtils[M[_]] {
+private[transport] trait TransportUtils[M[_]] {
 
   def unit: M[Unit]
   def right[A](a: A): M[A]

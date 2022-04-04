@@ -81,6 +81,15 @@ object TransportImplicits {
     def mapToUnit: ResultA[Unit] = resultAUtils.mapToUnit(result)
   }
 
+
+  implicit class ResultAsImplicits[A](val results: Seq[ResultA[A]]) extends AnyVal {
+    def runSequence: ResultA[Seq[A]] = ResultA.runSequence(results)
+
+    def runParSequence: ResultA[Seq[A]] = ResultA.runParSequence(results)
+
+    def runParSequenceUnordered: ResultA[Seq[A]] = ResultA.runParSequenceUnordered(results)
+  }
+
   implicit class ResultETImplicits[A](val result: ResultET[A]) extends AnyVal {
     def tapRight(fr: A => Unit): ResultET[A]    = resultETUtils.tapRight(result, fr)
     def tapLeft(fl: Fault => Unit): ResultET[A] = resultETUtils.tapLeft(result, fl)

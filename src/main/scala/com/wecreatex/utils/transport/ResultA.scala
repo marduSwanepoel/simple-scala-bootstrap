@@ -2,11 +2,13 @@ package com.wecreatex.utils.transport
 
 import cats.Applicative
 import monix.eval.Task
+
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
-import cats.instances.list._
-import cats.instances.either._
-import cats.syntax.traverse._
+import cats.instances.list.*
+import cats.instances.either.*
+import cats.syntax.traverse.*
+import monix.execution.compat.BuildFrom
 
 /**
  * ResultA -> Result-Async
@@ -45,5 +47,23 @@ object ResultA extends TransportUtils[ResultA] {
 
   override def mapToUnit[A](transport: ResultA[A]): ResultA[Unit] =
     transport.map(_.map(_ => ()))
+
+  def runSequence[A](results: Seq[ResultA[A]]): ResultA[Seq[A]] = {
+    Task
+      .sequence(results)
+      .map(Result.invert)
+  }
+
+  def runParSequence[A](resultAs: Seq[ResultA[A]]): ResultA[Seq[A]] = {
+    Task
+      .parSequence(resultAs)
+      .map(Result.invert)
+  }
+
+  def runParSequenceUnordered[A](resultAs: Seq[ResultA[A]]): ResultA[Seq[A]] = {
+    Task
+      .parSequenceUnordered(resultAs)
+      .map(Result.invert)
+  }
 
 }

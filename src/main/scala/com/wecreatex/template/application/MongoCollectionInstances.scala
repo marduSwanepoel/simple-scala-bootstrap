@@ -1,9 +1,13 @@
 package com.wecreatex.template.application
 
-import com.wecreatex.utils.database.mongodb.MongoDatabaseProvider
+import com.wecreatex.template.domain.person.{PeopleRepo, Person}
+import com.wecreatex.template.infrastructure.domain.person.PeopleMongoRepository
+import com.wecreatex.utils.database.mongodb.{MongoCollectionProvider, MongoDatabaseProvider}
 
 trait MongoCollectionInstances extends MongoDatabaseProvider {
-  
-  
+
+  lazy val peopleCollection: MongoCollectionProvider[Person] & PeopleRepo = new PeopleMongoRepository
+
+  override protected lazy val collections: List[MongoCollectionProvider[_]] = List(peopleCollection)
 
 }

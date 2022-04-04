@@ -17,6 +17,7 @@ import org.mongodb.scala.SingleObservableFuture
 import org.mongodb.scala.gridfs.SingleObservableFuture
 import org.mongodb.scala.ObservableFuture
 import org.mongodb.scala.gridfs.ObservableFuture
+import com.wecreatex.utils.database.mongodb.MongoImplicits._
 
 trait MongoDatabaseProvider extends Listeners {
 
@@ -25,14 +26,15 @@ trait MongoDatabaseProvider extends Listeners {
 
   //TODO: should these be in a thread?
   lazy val mongoClient: MongoClient = createMongoClient
-  lazy val mongoDatabase: MongoDatabase = getDatabase
+  implicit lazy val mongoDatabase: MongoDatabase = getDatabase
+  protected lazy val collections: List[MongoCollectionProvider[_]]
 
   private var configuration: ClusterDescription = _
 //  private def allCodecs = fromRegistries(fromProviders(codecs), DEFAULT_CODEC_REGISTRY)
   private def allCodecs = fromRegistries(DEFAULT_CODEC_REGISTRY)
 
 //todo: wrap settings in try
-  lazy val settings = MongoClientSettings
+  lazy private val settings = MongoClientSettings
     .builder()
     .applyToClusterSettings(block => block.serverSelectionTimeout(5, TimeUnit.SECONDS))
     .readPreference(ReadPreference.primary())
@@ -50,9 +52,17 @@ trait MongoDatabaseProvider extends Listeners {
   private def getDatabase: MongoDatabase =
     mongoClient.getDatabase(config.databaseName)
 
-  def startMongoDb: ResultA[Unit] = {
+  final def setupCollections: ResultA[Unit] = {
+    collections
+      .map(_.configureCollection)
+      .runParSequence
+      .mapToUnit
+  }
+
+  //todo this is not failing when no DB / other error
+  final def startMongoDb: ResultA[Unit] = {
     logInfo("Starting up..", "Start MongoDB Client")
-    pingDatabase(config.databaseName)
+    pingDatabase(config.databaseName).flatMap(_ => setupCollections)
       .mapToUnit
       .tapRight( _ => logInfo("Successfully connected to ...", "Start MongoDB Client") )
       .tapLeft( fault =>
@@ -62,7 +72,7 @@ trait MongoDatabaseProvider extends Listeners {
       )
   }
 
-  def healthCheck: ResultA[Unit] = {
+  final def healthCheck: ResultA[Unit] = {
     pingDatabase()
       .tapRight(_ => logInfo("Successful", "Mongo DB health-check"))
       .tapLeft( fault => logWarn(s"Failed due to '${fault.prettyMessage}'", "Mongo DB health-check"))
@@ -71,15 +81,10 @@ trait MongoDatabaseProvider extends Listeners {
 
   private def pingDatabase(database: String = "config"): ResultA[Document] = {
     logDebug(s"Performing PING to database $database")
-    def ping = mongoClient
+    mongoClient
       .getDatabase(database)
       .runCommand(Document("ping" -> 1))
-      .toFuture
-
-    Task
-      .fromFuture(ping)
-      .attempt
-      .map(_.wrapR(th => Fault(th)))
+      .runToResultA
   }
 
 }

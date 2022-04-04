@@ -6,7 +6,7 @@ import scala.concurrent.ExecutionContext
 /**
  * Template to be used when creating infrastructure-specific implementations of an HTTP API Router.
  */
-trait HttpApiRouter {
+private[httpApi] trait HttpApiRouter {
 
   type RoutesType
 

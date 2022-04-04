@@ -9,7 +9,7 @@ import com.wecreatex.utils.logging.LoggingUtils
 /**
  * Akka-specific HTTP API route utility functions
  */
-trait AkkaRouteHelpers extends AkkaRouteCompletion with Directives with LoggingUtils {
+private[akka] trait AkkaRouteHelpers extends AkkaRouteCompletion with Directives with LoggingUtils {
 
   val apiVersion: String
   val baseUrlOpt: Option[String]

@@ -11,7 +11,7 @@ import scala.concurrent.ExecutionContext
 /**
  * Template to be used when creating infrastructure-specific implementations of an HTTP API Server.
  */
-trait HttpApi extends LoggingUtils {
+private[httpApi] trait HttpApi extends LoggingUtils {
 
   protected type RoutesType
 

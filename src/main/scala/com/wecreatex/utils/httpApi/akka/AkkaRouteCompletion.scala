@@ -19,7 +19,7 @@ import scala.util.{Failure, Success}
 /**
  * Akka-specific HTTP API route-completion utility functions, used for easy route completion of all service-specific transport DTOs.
  */
-trait AkkaRouteCompletion extends LoggingUtils with SprayJsonSupport with DefaultJsonProtocol with TransportJsonFormats {
+private[akka] trait AkkaRouteCompletion extends LoggingUtils with SprayJsonSupport with DefaultJsonProtocol with TransportJsonFormats {
 
   private val loggingContextName = "HTTP Route Completion"
 
