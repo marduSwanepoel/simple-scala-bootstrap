@@ -7,7 +7,7 @@ import com.wecreatex.utils.transport.TransportUtils
 
 import scala.util.control.NonFatal
 import scala.util.Either
-import cats.implicits.*
+import cats.implicits._
 import cats.NonEmptyTraverse.ops.toAllNonEmptyTraverseOps
 
 /**

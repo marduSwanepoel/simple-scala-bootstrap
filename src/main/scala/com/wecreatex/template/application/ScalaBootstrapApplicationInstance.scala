@@ -8,7 +8,7 @@ import com.wecreatex.utils.application.ApplicationInstance
 import com.wecreatex.utils.httpApi.akka.{AkkaHttpApi, AkkaApiRouter}
 import com.wecreatex.utils.logging.LoggingUtils
 import com.wecreatex.utils.transport.ResultA
-import com.wecreatex.utils.transport.TransportImplicits.*
+import com.wecreatex.utils.transport.TransportImplicits._
 import monix.eval.Task
 
 /**

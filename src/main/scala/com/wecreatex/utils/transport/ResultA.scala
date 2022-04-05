@@ -5,9 +5,9 @@ import monix.eval.Task
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
-import cats.instances.list.*
-import cats.instances.either.*
-import cats.syntax.traverse.*
+import cats.instances.list._
+import cats.instances.either._
+import cats.syntax.traverse._
 import monix.execution.compat.BuildFrom
 
 /**

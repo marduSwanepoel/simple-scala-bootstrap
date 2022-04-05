@@ -14,7 +14,7 @@ import akka.actor.ActorSystem
 import akka.event.slf4j.SLF4JLogging
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.{HttpRequest, StatusCodes}
-import akka.http.scaladsl.server.Directives.{get, path, *}
+import akka.http.scaladsl.server.Directives.{get, path, _}
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.settings.ServerSettings
 import akka.stream.scaladsl.{Flow, Sink}
@@ -35,7 +35,7 @@ trait AkkaHttpApi extends HttpApi {
   override type RoutesType = Route
   override type ConfigType = AkkaServerConfig
 
-  lazy val routers: List[AkkaApiRouter]
+  val routers: List[AkkaApiRouter]
 
   protected lazy val allRoutesWithHealth: Route = routers.foldLeft(healthRoute){ case (routes, router) =>  routes ~ router.routes }
 

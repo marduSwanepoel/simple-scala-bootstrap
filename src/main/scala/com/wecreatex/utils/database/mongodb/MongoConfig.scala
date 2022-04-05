@@ -1,7 +1,6 @@
 package com.wecreatex.utils.database.mongodb
 
-import com.wecreatex.utils.database.mongodb.MongoConfig.ConnectionType
-import com.wecreatex.utils.database.mongodb.MongoConfig.ConnectionType.{Atlas, Server}
+import com.wecreatex.utils.database.mongodb.MongoConfig.{Atlas, ConnectionType, Server}
 import com.wecreatex.utils.transport.Result
 import com.wecreatex.utils.environment.EnvUtils
 
@@ -20,10 +19,10 @@ case class MongoConfig(
 
 }
 
-object MongoConfig {
+object MongoConfig extends Enumeration {
 
-  enum ConnectionType:
-    case Server, Atlas
+  type ConnectionType = Value
+  val Server, Atlas = Value
 
   def loadFromEnvUnsafe: MongoConfig = {
     val connectionTypeString = EnvUtils.loadFromEnvUnsafe("MONGO_SERVER_TYPE", "SERVER")

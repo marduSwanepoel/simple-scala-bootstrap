@@ -4,8 +4,8 @@ import akka.event.slf4j.SLF4JLogging
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.marshalling.ToResponseMarshaller
 import akka.http.scaladsl.model.{StatusCode, StatusCodes}
-import akka.http.scaladsl.server.Directives.*
-import akka.http.scaladsl.server.*
+import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server._
 import com.wecreatex.utils.json.spray.TransportJsonFormats
 import com.wecreatex.utils.logging.LoggingUtils
 import com.wecreatex.utils.transport.Fault.GenericFault
@@ -29,7 +29,7 @@ private[akka] trait AkkaRouteCompletion extends LoggingUtils with SprayJsonSuppo
     toHttpJson(value, StatusCodes.OK)
   }
 
-  private def completeFault(fault: Fault): Route = {
+  private def completeFault(fault: Fault)(implicit marshaller: ToResponseMarshaller[Fault]): Route = {
     val censoredError = GenericFault(fault.message, None)
     logError(s"Completed with status '${StatusCodes.InternalServerError}' and error `${fault.prettyMessage}", loggingContextName)
     toHttpJson(censoredError, StatusCodes.InternalServerError)

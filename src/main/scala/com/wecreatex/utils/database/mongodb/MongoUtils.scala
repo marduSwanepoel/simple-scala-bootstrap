@@ -5,7 +5,7 @@ import monix.eval.Task
 import org.mongodb.scala.{Observable, ObservableFuture, SingleObservable, SingleObservableFuture}
 import org.mongodb.scala.gridfs.SingleObservableFuture
 import org.mongodb.scala.gridfs.ObservableFuture
-import com.wecreatex.utils.transport.TransportImplicits.*
+import com.wecreatex.utils.transport.TransportImplicits._
 
 object MongoUtils {
   

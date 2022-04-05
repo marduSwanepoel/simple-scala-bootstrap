@@ -1,56 +1,32 @@
 package com.wecreatex.utils.database.mongodb
 
 import com.mongodb.ReadPreference
-import com.mongodb.connection.ClusterDescription
-import com.wecreatex.template.domain.address.Address
-import com.wecreatex.template.domain.person.Person
-import com.wecreatex.utils.transport.{Fault, Result, ResultA}
-import io.netty.channel.nio.NioEventLoopGroup
-import monix.eval.Task
-import org.bson.codecs.configuration.{CodecProvider, CodecRegistry}
+import com.wecreatex.template.infrastructure.domain.person.PeopleMongoRepository
+import com.wecreatex.utils.database.mongodb.MongoImplicits._
+import com.wecreatex.utils.transport.ResultA
+import com.wecreatex.utils.transport.TransportImplicits._
+import org.bson.codecs.configuration.CodecRegistries.fromRegistries
+import org.bson.codecs.configuration.CodecRegistry
 import org.mongodb.scala.MongoClient.DEFAULT_CODEC_REGISTRY
 import org.mongodb.scala.{ConnectionString, Document, MongoClient, MongoClientSettings, MongoDatabase, WriteConcern}
-import org.mongodb.scala.connection.NettyStreamFactoryFactory
-import org.slf4j.Logger
-import org.mongodb.scala.bson.codecs.Macros.*
-import org.mongodb.scala.bson.codecs._
+
 import java.util.concurrent.TimeUnit
-import com.wecreatex.utils.transport.TransportImplicits.*
-import org.mongodb.scala.SingleObservableFuture
-import org.mongodb.scala.gridfs.SingleObservableFuture
-import org.mongodb.scala.ObservableFuture
-import org.mongodb.scala.gridfs.ObservableFuture
-import com.wecreatex.utils.database.mongodb.MongoImplicits.*
-import org.bson.codecs.configuration.CodecRegistries.{fromProviders, fromRegistries}
+
 trait MongoDatabaseProvider extends Listeners {
 
+  //  private var configuration: ClusterDescription = _
   protected lazy val config: MongoConfig = MongoConfig.loadFromEnvUnsafe
-//  def codecs: CodecRegistry
-
-  //TODO: should these be in a thread?
-  lazy val mongoClient: MongoClient = createMongoClient
-  implicit lazy val mongoDatabase: MongoDatabase = getDatabase
-  protected lazy val collections: List[MongoCollectionProvider[_]]
-
-//  private var configuration: ClusterDescription = _
-
-  import org.mongodb.scala.bson.codecs.Macros.createCodecProvider
-  import org.bson.codecs.configuration.CodecRegistries.{fromRegistries, fromProviders}
-  case class Contact(phone: String)
-  case class User(_id: Int, username: String, age: Int, hobbies: List[String], contacts: List[Contact])
-
-//  val zz: CodecProvider = classOf[User]
-//  val xxx = fromProviders(classOf[Person])
 
 
-  //  val codecRegistry = fromRegistries(fromProviders(classOf[User]), MongoClient.DEFAULT_CODEC_REGISTRY)
-  //private val customCodecs = fromProviders(classOf[Person])
-//  val codecRegistry = fromRegistries(
-//    fromProviders(classOf[Person]),
-//    DEFAULT_CODEC_REGISTRY
+  val domainRegistries: CodecRegistry
+//  import scala.jdk.CollectionConverters._
+//  val codecRegistries: CodecRegistry = fromRegistries(
+//    collectionRegistries.asJava
+//    //    collectionRegistries:_*
+//    //    DEFAULT_CODEC_REGISTRY
 //  )
 
-//todo: wrap settings in try
+  //todo: wrap settings in try
   lazy private val settings = MongoClientSettings
     .builder()
     .applyToClusterSettings(block => block.serverSelectionTimeout(5, TimeUnit.SECONDS))
@@ -58,16 +34,16 @@ trait MongoDatabaseProvider extends Listeners {
     .writeConcern(WriteConcern.MAJORITY)
     .retryWrites(true)
     .addCommandListener(this)
-//    .codecRegistry(codecRegistry)
-//    .streamFactoryFactory(NettyStreamFactoryFactory.builder().eventLoopGroup(new NioEventLoopGroup()).build())
+    .codecRegistry(domainRegistries)
+    //    .streamFactoryFactory(NettyStreamFactoryFactory.builder().eventLoopGroup(new NioEventLoopGroup()).build())
     .applyConnectionString(ConnectionString(config.connectionString))
     .build()
 
-  private def createMongoClient: MongoClient =
-    MongoClient(settings)
+  protected val collections: List[MongoCollectionProvider[_]]
 
-  private def getDatabase: MongoDatabase =
-    mongoClient.getDatabase(config.databaseName)
+  //TODO: should these be in a thread?
+  lazy val mongoClient: MongoClient = MongoClient(settings)
+  implicit lazy val mongoDatabase: MongoDatabase = mongoClient.getDatabase(config.databaseName)
 
   final def setupCollections: ResultA[Unit] = {
     collections

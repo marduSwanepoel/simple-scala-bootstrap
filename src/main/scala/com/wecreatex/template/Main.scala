@@ -6,7 +6,7 @@ import com.wecreatex.template.domain.address.AddressService
 import com.wecreatex.template.domain.person.PeopleService
 import com.wecreatex.template.infrastructure.domain.address.AddressAkkaRouter
 import monix.eval.{Task, TaskApp}
-import akka.http.scaladsl.server.Directives.*
+import akka.http.scaladsl.server.Directives._
 import com.wecreatex.template.application.ScalaBootstrapApplicationInstance
 import com.wecreatex.utils.httpApi.akka.AkkaServerConfig
 

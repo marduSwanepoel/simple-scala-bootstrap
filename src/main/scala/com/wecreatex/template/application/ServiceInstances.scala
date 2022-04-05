@@ -10,8 +10,8 @@ import com.wecreatex.template.domain.person.{PeopleRepo, PeopleService}
  * */
 trait ServiceInstances {
   
-  lazy val addressRepo: AddressRepo
-  lazy val peopleRepo: PeopleRepo
+  val addressRepo: AddressRepo
+  val peopleRepo: PeopleRepo
 
   lazy val peopleService  = new PeopleService(peopleRepo)
   lazy val addressService = new AddressService(addressRepo)
