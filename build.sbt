@@ -3,7 +3,7 @@ import Settings.commonSettings
 
 ThisBuild / organization := "com.we-create-x"
 ThisBuild / version      := "0.1.0"
-ThisBuild / scalaVersion := "3.1.0"
+ThisBuild / scalaVersion := "2.13.8"
 
 enablePlugins(JavaAppPackaging)
 

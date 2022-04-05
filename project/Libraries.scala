@@ -7,7 +7,7 @@ object Libraries {
     val akkaScala3    = "2.6.19"
     val akkaHttp      = "10.2.9"
     val monix         = "3.4.0"
-    val mongoScalaDriver = "4.5.1"
+    val mongoDriver   = "4.5.1"
     val cats          = "2.7.0"
     val netty         = "4.1.17.Final"
     val json4s        = "4.0.4"
@@ -21,13 +21,14 @@ object Libraries {
     val scalaCache    = "0.28.0"
   }
 
-  val akkaActor  = "com.typesafe.akka"   %% "akka-actor"                 % Versions.akkaScala3 cross CrossVersion.for3Use2_13
-  val akkaStream = "com.typesafe.akka"   %% "akka-stream"                % Versions.akkaScala3 cross CrossVersion.for3Use2_13
-  val akkaHttp   = "com.typesafe.akka"   %% "akka-http"                  % Versions.akkaHttp cross CrossVersion.for3Use2_13
-  val akkaHttpSpray = "com.typesafe.akka"%% "akka-http-spray-json"       % Versions.akkaHttp cross CrossVersion.for3Use2_13
-  val akkaSLF4J  = "com.typesafe.akka"   %% "akka-slf4j"                 % Versions.akkaScala3 // cross CrossVersion.for3Use2_13
-  val monix      = "io.monix"            %% "monix"                      % Versions.monix
-  val mongoScalaDriver = "org.mongodb.scala" %% "mongo-scala-driver"     % Versions.mongoScalaDriver cross CrossVersion.for3Use2_13
+  val akkaActor  = "com.typesafe.akka"   %% "akka-actor"                 % Versions.akkaScala3// cross CrossVersion.for3Use2_13
+  val akkaStream = "com.typesafe.akka"   %% "akka-stream"                % Versions.akkaScala3 //cross CrossVersion.for3Use2_13
+  val akkaHttp   = "com.typesafe.akka"   %% "akka-http"                  % Versions.akkaHttp //cross CrossVersion.for3Use2_13
+  val akkaHttpSpray = "com.typesafe.akka"%% "akka-http-spray-json"       % Versions.akkaHttp //cross CrossVersion.for3Use2_13
+  val akkaSLF4J   = "com.typesafe.akka"   %% "akka-slf4j"                 % Versions.akkaScala3 // cross CrossVersion.for3Use2_13
+  val monix       = "io.monix"            %% "monix"                      % Versions.monix
+  val mongoDriver = "org.mongodb.scala" %% "mongo-scala-driver"     % Versions.mongoDriver //cross CrossVersion.for3Use2_13
+//  val mongoDriver = "org.mongodb.scala" %% "mongo-java-driver"     % Versions.mongoDriver cross CrossVersion.for3Use2_13
   val catsCore   = "org.typelevel"       %% "cats-core"                  % Versions.cats
   val catsKernel = "org.typelevel"       %% "cats-kernel"                % Versions.cats
   val netty     = "io.netty"             %  "netty-all"                  % Versions.netty
@@ -35,11 +36,11 @@ object Libraries {
   val bsonCodec = "ch.rasc"              % "bsoncodec"                   % Versions.bsonCodec
   val slf4jApi = "org.slf4j"             % "slf4j-api"                   % Versions.slf4jApi
   val slf4jLog = "org.slf4j"             % "slf4j-log4j12"               % Versions.slf4jLog
-  val bcrypt   = "com.github.t3hnar"     %% "scala-bcrypt"               % Versions.bcrypt cross CrossVersion.for3Use2_13
-  val javaMail = "org.simplejavamail"    % "simple-java-mail"            % Versions.javaMail
-  val pureCsv  = "io.kontainers"         %% "purecsv"                    % Versions.pureCsv cross CrossVersion.for3Use2_13
-  val scalaCache = "com.github.cb372"    %% "scalacache-redis"           % Versions.scalaCache cross CrossVersion.for3Use2_13
-  val scalaCacheCats = "com.github.cb372" %% "scalacache-cats-effect"    % Versions.scalaCache cross CrossVersion.for3Use2_13
+//  val bcrypt   = "com.github.t3hnar"     %% "scala-bcrypt"               % Versions.bcrypt //cross CrossVersion.for3Use2_13
+//  val javaMail = "org.simplejavamail"    % "simple-java-mail"            % Versions.javaMail
+//  val pureCsv  = "io.kontainers"         %% "purecsv"                    % Versions.pureCsv// cross CrossVersion.for3Use2_13
+//  val scalaCache = "com.github.cb372"    %% "scalacache-redis"           % Versions.scalaCache //cross CrossVersion.for3Use2_13
+//  val scalaCacheCats = "com.github.cb372" %% "scalacache-cats-effect"    % Versions.scalaCache //cross CrossVersion.for3Use2_13
 
   val templateImports = Seq(
     Libraries.akkaActor,
@@ -47,7 +48,7 @@ object Libraries {
     Libraries.akkaHttp,
     Libraries.akkaSLF4J,
     Libraries.monix,
-    Libraries.mongoScalaDriver,
+    Libraries.mongoDriver,
     Libraries.catsCore,
     Libraries.catsKernel,
     Libraries.netty,
@@ -56,11 +57,11 @@ object Libraries {
     Libraries.bsonCodec,
     Libraries.slf4jApi,
     Libraries.slf4jLog,
-    Libraries.bcrypt,
-    Libraries.javaMail,
-    Libraries.pureCsv,
-    Libraries.scalaCache,
-    Libraries.scalaCacheCats
+//    Libraries.bcrypt,
+//    Libraries.javaMail,
+//    Libraries.pureCsv,
+//    Libraries.scalaCache,
+//    Libraries.scalaCacheCats
   )
 
 }

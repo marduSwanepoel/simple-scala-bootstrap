@@ -15,8 +15,8 @@ import com.wecreatex.utils.httpApi.akka.{AkkaApiRouter, AkkaHttpApi}
 
 trait HttpApiInstance extends AkkaHttpApi {
 
-  lazy val peopleService: PeopleService
-  lazy val addressService: AddressService
+  val peopleService: PeopleService
+  val addressService: AddressService
 
   private lazy val peopleRouter  = new PeopleAkkaRouter(peopleService)
   private lazy val addressRouter = new AddressAkkaRouter(addressService)
