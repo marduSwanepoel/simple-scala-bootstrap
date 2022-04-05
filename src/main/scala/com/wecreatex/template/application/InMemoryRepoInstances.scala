@@ -15,5 +15,6 @@ import com.wecreatex.template.infrastructure.domain.person.PeopleInMemoryReposit
 trait InMemoryRepoInstances {
 
   lazy val addressRepo: AddressRepo = new AddressInMemoryRepository()
+//  lazy val peopleRepo: PeopleRepo = new PeopleInMemoryRepository
 
 }

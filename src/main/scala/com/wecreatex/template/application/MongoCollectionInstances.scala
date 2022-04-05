@@ -1,10 +1,8 @@
 package com.wecreatex.template.application
 
-import com.wecreatex.template.domain.person.{PeopleRepo, Person}
-import com.wecreatex.template.infrastructure.database.{DomainMongoCodecs}
+import com.wecreatex.template.infrastructure.database.DomainMongoCodecs
 import com.wecreatex.template.infrastructure.domain.person.PeopleMongoRepository
 import com.wecreatex.utils.database.mongodb.{MongoCollectionProvider, MongoDatabaseProvider}
-import org.bson.codecs.configuration.CodecRegistries.fromRegistries
 import org.bson.codecs.configuration.CodecRegistry
 
 trait MongoCollectionInstances extends MongoDatabaseProvider {

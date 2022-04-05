@@ -1,14 +1,6 @@
 package com.wecreatex.utils.transport
 
-import cats.{Applicative, Traverse, UnorderedTraverse}
-import cats.data.EitherT
-import monix.eval.Task
-import com.wecreatex.utils.transport.TransportUtils
-
-import scala.util.control.NonFatal
 import scala.util.Either
-import cats.implicits._
-import cats.NonEmptyTraverse.ops.toAllNonEmptyTraverseOps
 
 /**
  * A Scala [[Either]]-based DTO used to transfer either a generic type of anything as a [[Right]], or 
@@ -47,7 +39,8 @@ object Result extends TransportUtils[Result] {
     results.foldLeft(Result.right(Seq.empty[A])) { case (accumulator, result) =>
       (accumulator, result) match {
         case (Right(seq), Right(value)) => Result.right(seq :+ value)
-        case (Left(err), _) => accumulator
+        case (Left(_), _) => accumulator
+        case (_, Left(err)) => Result.left(err)
       }
     }
   }

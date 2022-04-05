@@ -79,8 +79,11 @@ object TransportImplicits {
     def tapLeft(fl: Fault => Unit): ResultA[A] = resultAUtils.tapLeft(result, fl)
 
     def mapToUnit: ResultA[Unit] = resultAUtils.mapToUnit(result)
-  }
 
+    def innerMap[B](f: A => B): ResultA[B] = {
+      ResultA.innerMap(result, f)
+    }
+  }
 
   implicit class ResultAsImplicits[A](val results: Seq[ResultA[A]]) extends AnyVal {
     def runSequence: ResultA[Seq[A]] = ResultA.runSequence(results)

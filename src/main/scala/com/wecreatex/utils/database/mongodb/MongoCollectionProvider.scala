@@ -1,23 +1,18 @@
 package com.wecreatex.utils.database.mongodb
 
 import com.wecreatex.utils.database.mongodb.MongoImplicits._
-import com.wecreatex.utils.transport.ResultA
+import com.wecreatex.utils.transport.{Result, ResultA}
 import com.wecreatex.utils.transport.TransportImplicits._
 import org.mongodb.scala.{MongoCollection, MongoDatabase}
 import scala.reflect.ClassTag
 
 abstract class MongoCollectionProvider[A : ClassTag] extends MongoCrud[A] {
 
-  val database: MongoDatabase
+  val database: Result[MongoDatabase]
   protected val collectionName: String
 
-  override lazy val collection: MongoCollection[A] = database.getCollection[A](collectionName)
+  override lazy val collection: ResultA[MongoCollection[A]] = database.map(_.getCollection[A](collectionName)).liftA
 
-  def configureCollection: ResultA[Unit] = {
-    collection
-      .listIndexes()
-      .runToResultA
-      .mapToUnit
-  }
+  def ensureCollectionExists: ResultA[Unit] = collection.mapToUnit
 
 }

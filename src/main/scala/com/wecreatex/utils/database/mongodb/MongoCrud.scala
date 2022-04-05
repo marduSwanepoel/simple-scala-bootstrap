@@ -3,7 +3,8 @@ package com.wecreatex.utils.database.mongodb
 import java.time.OffsetDateTime
 import akka.event.slf4j.SLF4JLogging
 import com.wecreatex.utils.logging.LoggingUtils
-import com.wecreatex.utils.transport.{Fault, ResultA}
+import com.wecreatex.utils.transport.{Fault, Result, ResultA}
+import com.wecreatex.utils.transport.TransportImplicits._
 import monix.eval.Task
 import org.bson.conversions.Bson
 import org.json4s.Formats
@@ -19,22 +20,23 @@ import org.mongodb.scala.SingleObservableFuture
 import org.mongodb.scala.gridfs.SingleObservableFuture
 import org.mongodb.scala.ObservableFuture
 import org.mongodb.scala.gridfs.ObservableFuture
+import com.wecreatex.utils.database.mongodb.MongoImplicits._
+
 import scala.concurrent.Future
 import scala.reflect.ClassTag
 import org.mongodb.scala.result.UpdateResult
 
 private[mongodb] trait MongoCrud[A] extends LoggingUtils {
 
-  implicit val collection: MongoCollection[A]
+  implicit val collection: ResultA[MongoCollection[A]]
 
   def insert(doc: A): Task[Either[Fault,A]] = {
-    val dbFuture = collection
-      .insertOne(doc)
-      .collect() //todo can we DRY this chanin of events, maybe pass in a function? OR implicit finisher/completer
-      .toFuture
-    runDbFuture(dbFuture).map(_.map(_ => doc))
+    collection
+      .innerMap(_.insertOne(doc).collect())
+      .runToResultA
+      .innerMap(_ => doc)
   }
-//
+
 //  def insertMany(docs: Seq[A]): Task[Either[ErrorLoad,Seq[A]]] = {
 //    val dbFuture = collection
 //      .insertMany(docs)
