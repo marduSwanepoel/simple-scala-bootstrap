@@ -55,7 +55,7 @@ trait MongoDatabaseProvider extends Listeners {
 
     tasks
       .value
-      .tapRight( _ => logInfo("Successfully connected to ...", "Start MongoDB Client") )
+      .tapRight( _ => logInfo(s"Successfully connected to ${config.host}${config.port.fold("")(i => s":$i")} with connection type '${config.connectionType}'", "Start MongoDB Client") )
       .tapLeft( fault =>
         logError(
           s"Failed to start MongoDB connection to ${config.databaseName} due to error '${fault.rawMessage}'",
