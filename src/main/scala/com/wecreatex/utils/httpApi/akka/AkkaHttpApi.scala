@@ -1,33 +1,17 @@
 package com.wecreatex.utils.httpApi.akka
 
 import akka.actor.ActorSystem
-import akka.event.slf4j.SLF4JLogging
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.{HttpRequest, StatusCodes}
-import akka.http.scaladsl.server.Directives.{complete, get, path}
+import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.settings.ServerSettings
 import akka.stream.scaladsl.{Flow, Sink}
-import monix.execution.Scheduler
-import org.slf4j.Logger
-import akka.actor.ActorSystem
-import akka.event.slf4j.SLF4JLogging
-import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.{HttpRequest, StatusCodes}
-import akka.http.scaladsl.server.Directives.{get, path, _}
-import akka.http.scaladsl.server.Route
-import akka.http.scaladsl.settings.ServerSettings
-import akka.stream.scaladsl.{Flow, Sink}
-import com.wecreatex.utils.httpApi.{HttpApi, HttpApiConfig}
-import com.wecreatex.utils.logging.LoggingUtils
+import com.wecreatex.utils.httpApi.HttpApi
 import com.wecreatex.utils.transport.Result
 import monix.execution.Scheduler
-import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success}
-import org.slf4j.Logger
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
-import monix.execution.ExecutionModel.AlwaysAsyncExecution
 
 /** Akka-based [[HttpApi]] implementation */
 trait AkkaHttpApi extends HttpApi {
@@ -35,17 +19,17 @@ trait AkkaHttpApi extends HttpApi {
   override type RoutesType = Route
   override type ConfigType = AkkaServerConfig
 
-  val routers: List[AkkaApiRouter]
+  protected val routers: List[AkkaApiRouter]
 
   protected lazy val allRoutesWithHealth: Route = routers.foldLeft(healthRoute){ case (routes, router) =>  routes ~ router.routes }
 
-  override def startHttpApiFromEnvironment(): Result[Unit] = {
+  override protected def startHttpApiFromEnvironment(): Result[Unit] = {
     AkkaServerConfig
       .loadFromEnv
       .flatMap(startHttpApiFromConfig)
   }
 
-  override def startHttpApiFromConfig(config: AkkaServerConfig): Result[Unit] = {
+  override protected def startHttpApiFromConfig(config: AkkaServerConfig): Result[Unit] = {
     Result.attemptUnsafe(startUnsafe(config))
   }
 

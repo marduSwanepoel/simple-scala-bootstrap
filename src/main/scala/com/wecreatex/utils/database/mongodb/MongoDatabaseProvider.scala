@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit
 
 trait MongoDatabaseProvider extends Listeners {
 
-  val domainRegistries: CodecRegistry
+  protected val domainRegistries: CodecRegistry
   protected val collections: List[MongoCollectionProvider[_]]
 
   protected lazy val config: MongoConfig = MongoConfig.loadFromEnvUnsafe
@@ -33,10 +33,10 @@ trait MongoDatabaseProvider extends Listeners {
     Fault("Failure building MongoDB settings", _)
   )
 
-  lazy val mongoClient: Result[MongoClient] = settings.map(MongoClient(_))
+  private lazy val mongoClient: Result[MongoClient] = settings.map(MongoClient(_))
 
   private final def getDatabase(name: String): Result[MongoDatabase] = mongoClient.map(_.getDatabase(name))
-  implicit lazy val mongoDatabase: Result[MongoDatabase] = getDatabase(config.databaseName)
+  implicit protected lazy val mongoDatabase: Result[MongoDatabase] = getDatabase(config.databaseName)
 
   final private def setupCollections: ResultA[Unit] = {
     collections
@@ -46,7 +46,7 @@ trait MongoDatabaseProvider extends Listeners {
   }
 
   //todo this is not failing when no DB / other error
-  final def startMongoDb: ResultA[Unit] = {
+  final protected def startMongoDb: ResultA[Unit] = {
     logInfo("Starting up..", "Start MongoDB Client")
     val tasks = for {
       _ <- pingDatabase(config.databaseName).liftET

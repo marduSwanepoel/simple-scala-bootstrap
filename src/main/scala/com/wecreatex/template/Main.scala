@@ -1,20 +1,15 @@
 package com.wecreatex.template
 
-import akka.event.slf4j.SLF4JLogging
-import cats.effect.ExitCode
-import com.wecreatex.template.domain.address.AddressService
-import com.wecreatex.template.domain.person.PeopleService
-import com.wecreatex.template.infrastructure.domain.address.AddressAkkaRouter
-import monix.eval.{Task, TaskApp}
-import akka.http.scaladsl.server.Directives._
 import com.wecreatex.template.application.ScalaBootstrapApplicationInstance
-import com.wecreatex.utils.httpApi.akka.AkkaServerConfig
+import com.wecreatex.utils.application.BootSupport
+import com.wecreatex.utils.transport.ResultA
 
 /*** Application entrypoint */
-object Main extends TaskApp {
+object Main extends BootSupport {
 
-  def run(args: List[String]): Task[ExitCode] = {
-    val serverInstance = new ScalaBootstrapApplicationInstance()
+  lazy val serverInstance = new ScalaBootstrapApplicationInstance()
+
+  override protected def startup: ResultA[Unit] = {
     serverInstance.start
   }
 

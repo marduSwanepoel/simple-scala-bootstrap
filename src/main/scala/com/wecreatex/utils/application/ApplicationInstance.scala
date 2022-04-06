@@ -1,9 +1,8 @@
 package com.wecreatex.utils.application
 
-import cats.effect.ExitCode
 import com.wecreatex.utils.logging.LoggingUtils
 import com.wecreatex.utils.transport.ResultA
-import monix.eval.Task
+import com.wecreatex.utils.transport.TransportImplicits._
 
 /**
  * Provides application startup support for the main application instance. This is the place where all other traits containing the
@@ -15,17 +14,18 @@ import monix.eval.Task
 trait ApplicationInstance extends LoggingUtils {
 
   /** This is the MAIN application start, called from within the application's Boot class. */
-  final def start: Task[ExitCode] = {
+  final def start: ResultA[Unit] = {
     logInfo("Commencing with the startup of all application instances", "Application Instances Startup")
-    instancesStartupImplementation.map {
-      case Left(fault) =>
-        logError(s"Unable to start application instances due to `${fault.rawMessage}`", "Application instances startup")
-        fault.causedBy.foreach(_.printStackTrace())
-        ExitCode.Error
-      case Right(value) =>
-        logInfo("All instances started successfully", "Application Instances Startup")
-        ExitCode.Success
-    }
+    instancesStartupImplementation
+      .liftET
+      .bimap(
+        { fault =>
+          logError(s"Unable to start application instances due to `${fault.rawMessage}`", "Application instances startup")
+          fault.causedBy.foreach(_.printStackTrace())
+          fault
+        },
+        { _ => logInfo("All application instances started successfully", "Application Instances Startup") }
+      ).value
   }
 
   /**

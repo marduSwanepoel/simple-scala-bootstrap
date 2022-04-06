@@ -15,13 +15,13 @@ import com.wecreatex.utils.httpApi.akka.{AkkaApiRouter, AkkaHttpApi}
 
 trait HttpApiInstance extends AkkaHttpApi {
 
-  val peopleService: PeopleService
-  val addressService: AddressService
+  protected val peopleService: PeopleService
+  protected val addressService: AddressService
 
   private lazy val peopleRouter  = new PeopleAkkaRouter(peopleService)
   private lazy val addressRouter = new AddressAkkaRouter(addressService)
 
-  override lazy val routers: List[AkkaApiRouter] = List(
+  override protected lazy val routers: List[AkkaApiRouter] = List(
     peopleRouter,
     addressRouter)
 

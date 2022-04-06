@@ -1,15 +1,8 @@
 package com.wecreatex.template.application
 
-import akka.event.slf4j.SLF4JLogging
-import cats.effect.ExitCode
-import com.wecreatex.template.application.{ServiceInstances, HttpApiInstance}
-import com.wecreatex.template.infrastructure.domain.address.AddressAkkaRouter
 import com.wecreatex.utils.application.ApplicationInstance
-import com.wecreatex.utils.httpApi.akka.{AkkaHttpApi, AkkaApiRouter}
-import com.wecreatex.utils.logging.LoggingUtils
 import com.wecreatex.utils.transport.ResultA
 import com.wecreatex.utils.transport.TransportImplicits._
-import monix.eval.Task
 
 /**
  * Brings together all the different components within this application, injecting the various dependencies and 

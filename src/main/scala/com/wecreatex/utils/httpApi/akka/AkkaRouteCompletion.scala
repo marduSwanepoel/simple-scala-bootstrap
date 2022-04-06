@@ -1,6 +1,5 @@
 package com.wecreatex.utils.httpApi.akka
 
-import akka.event.slf4j.SLF4JLogging
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.marshalling.ToResponseMarshaller
 import akka.http.scaladsl.model.{StatusCode, StatusCodes}
@@ -10,9 +9,7 @@ import com.wecreatex.utils.json.spray.TransportJsonFormats
 import com.wecreatex.utils.logging.LoggingUtils
 import com.wecreatex.utils.transport.Fault.GenericFault
 import com.wecreatex.utils.transport.{Fault, Result, ResultA}
-import monix.eval.Task
 import monix.execution.Scheduler
-import org.slf4j.Logger
 import spray.json.DefaultJsonProtocol
 import scala.util.{Failure, Success}
 

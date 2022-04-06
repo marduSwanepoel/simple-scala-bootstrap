@@ -7,9 +7,9 @@ import org.bson.codecs.configuration.CodecRegistry
 
 trait MongoCollectionInstances extends MongoDatabaseProvider {
 
-  lazy val peopleRepo: PeopleMongoRepository = new PeopleMongoRepository
+  protected lazy val peopleRepo: PeopleMongoRepository = new PeopleMongoRepository
 
-  override val domainRegistries: CodecRegistry = DomainMongoCodecs.allDomainCodecs
+  override protected val domainRegistries: CodecRegistry = DomainMongoCodecs.allDomainCodecs
 
   override protected lazy val collections: List[MongoCollectionProvider[_]] = List(peopleRepo)
 
