@@ -11,8 +11,8 @@ The Simple Scala Bootstrap project is an open-source project created to provide 
 
 ## Table of Contents
 - [Overview](#overview)
-- [The Simple Scala Utility Library](#the-simple-scala-utility-library)
-- [The Simple Scala Template Service](#the-simple-scala-template-service)
+- [Simple Scala Utility Library](#simple-scala-utility-library)
+- [Simple Scala Template Service](#simple-scala-template-service)
 - [Development Backlog](#development-backlog)
 - [Running the Application & Dependencies](#running-the-application-and-dependencies)
 - [License](#license)
@@ -24,7 +24,7 @@ The project consists of two parts, each contributing to the ultimate purpose of 
 - *Simple Scala* template service
   - This is a basic DDD and onion-architecture-based Scala service which demonstrates the use of the Simple Scala utility library. It also demonstrates the implementation of DDD and the onion-architecture in the service's folder structure - something that is essential to achieving a [screaming architecture](https://blog.cleancoder.com/uncle-bob/2011/09/30/Screaming-Architecture.html) repository.
   
-## The Simple Scala Utility Library
+## Simple Scala Utility Library
 A Utility Library that provides you with essential functionality to bootstrap and easily implement additional features in your Scala service. 
 Below are the utilities currently provided:
 - Transport (`/transport`)
@@ -40,7 +40,7 @@ Below are the utilities currently provided:
 - Logging (`/logging`)
 - Time (`/time`)
 
-## The Simple Scala Template Service
+## Simple Scala Template Service
 A ready-to-run Scala service serving three purposes:
 1. Demonstrates the use of the Simple Scala utility library through implementation and examples.
 2. Provides a ready-to-use folder structure based on DDD and the Onion-Architecture.
@@ -122,8 +122,9 @@ These are the aspects we still wish to incorporate into this library. Feel free 
   - Providing a means of Akka directive-based authentication when hitting the service APIs
 - Authorization & Access Control
   - Providing a generic means of authorization and access control to APIs 
-- MongoDB Connection Implementation
+- MongoDB 
   - MongoDB infrastructure and implementation utilities to allow the service to use MongoDB as a repository implementation.
+  - Chained query builder object to build up queries in a SQL-like fashion
 - Postgres Connection Implementation
     - Postgres infrastructure and implementation utilities to allow the service to use Postgres as a repository implementation.
 - Kafka Connection Implementation
@@ -155,7 +156,7 @@ docker run -p 27017:27017 \
 
 Simple Scala Bootstrap is [MIT licensed](./LICENSE).
 
-Copyright <YEAR> <COPYRIGHT HOLDER>
+Copyright 2022 @ [MAAK.X](https://we-create-x.com/)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 

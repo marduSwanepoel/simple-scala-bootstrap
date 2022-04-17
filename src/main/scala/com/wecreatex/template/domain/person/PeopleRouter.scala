@@ -1,7 +1,5 @@
 package com.wecreatex.template.domain.person
 
-import com.wecreatex.utils.transport.ResultA
-
 trait PeopleRouter {
 
   protected type RouteType
@@ -10,6 +8,6 @@ trait PeopleRouter {
 
   def getPerson: RouteType
 
-  def getRandomPerson: RouteType
+  def deletePerson: RouteType
 
 }

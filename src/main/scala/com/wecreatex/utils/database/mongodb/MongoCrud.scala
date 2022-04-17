@@ -12,7 +12,7 @@ import org.json4s.native.Serialization
 import org.mongodb.scala.MongoCollection
 import org.mongodb.scala.bson.BsonString
 import org.mongodb.scala.bson.collection.immutable.Document
-import org.mongodb.scala.model.Filters.{and, equal, in}
+import org.mongodb.scala.model.Filters.{and, equal, exists, in, or, empty}
 import org.mongodb.scala.model.Projections.{excludeId, fields, include}
 import org.mongodb.scala.model.Updates.set
 import org.slf4j.Logger
@@ -30,143 +30,196 @@ private[mongodb] trait MongoCrud[A] extends LoggingUtils {
 
   implicit val collection: ResultA[MongoCollection[A]]
 
-  def insert(doc: A): Task[Either[Fault,A]] = {
+  private val idFieldName = "id"
+  private val deletedFieldName = "deleted"
+
+  /**
+   * Creates a filter that matches all documents where the value of a field equals any value in the list of specified values.
+   */
+  private def filterOnField[F >: AnyVal](fieldName: String, values: Seq[F]): Bson = {
+    in(fieldName, values: _*)
+  }
+
+  private def filterWithValuesMap[F >: AnyVal](fieldsValuesMap: Map[String, F]): Bson = {
+    val fieldsMatches = fieldsValuesMap.map{ case (field, value) => equal(field, value) }.toSeq
+    and(fieldsMatches: _*)
+  }
+
+  private implicit class BsonFilerOps(filter: Bson) {
+    def excludeDeleted: Bson = {
+      and(
+        filter,
+        or(exists(deletedFieldName, exists = false), equal(deletedFieldName, value = false))
+      )
+    }
+  }
+
+  /**CREATE*/
+
+  def insert(doc: A): ResultA[A] = {
     collection
       .innerMap(_.insertOne(doc).collect())
       .runToResultA
       .innerMap(_ => doc)
   }
 
-//  def insertMany(docs: Seq[A]): Task[Either[ErrorLoad,Seq[A]]] = {
-//    val dbFuture = collection
-//      .insertMany(docs)
-//      .collect()
-//      .toFuture()
-//    runDbFuture(dbFuture).map(_.map(_ => docs))
+  def insertMany(docs: Seq[A]): ResultA[Seq[A]] = {
+    collection
+      .innerMap(_.insertMany(docs).collect())
+      .runToResultA
+      .innerMap(_ => docs)
+  }
+
+  /** READ */
+
+  /** Gets exactly one entry that matches on its ID field. If more that one or no result are found, a [[Fault]] is returned. */
+  def getById(id: String)(implicit ct: ClassTag[A]): ResultA[A] = {
+    findOneById(id)
+      .map(_.flatMap(_.liftR(s"Entity with ID '$id' not found")))
+  }
+
+  /** Finds one or None entry that matches on its ID field. If more than one entry is found, a [[Fault]] is returned */
+  def findOneById(id: String)(implicit ct: ClassTag[A]): ResultA[Option[A]] =
+    findOneByField(idFieldName, id)
+
+  /** Gets exactly one entry that matches on any field-value combination. If more that one or no result are found, a [[Fault]] is returned. */
+  def getByField[F >: AnyVal](field: String, value: F)(implicit ct: ClassTag[A]): ResultA[A] = {
+    findOneByField(field, value)
+      .map(_.flatMap(_.liftR(s"Entity with lookup on field '$field' not found")))
+  }
+
+  /** Finds one or None entry that matches on ID. If more than one entry is found, a [[Fault]] is returned */
+  def findOneByField[F >: AnyVal](field: String, value: F)(implicit ct: ClassTag[A]): ResultA[Option[A]] = {
+    findManyByField(field, Seq(value), 2)
+      .map(ensureOneOrNone(_, s"More than one entity entity matching on field '$field' found"))
+  }
+
+  /** Finds many entries that matches on a id -> Seq[id] combination. Every entry for which the id field matches any of the ids passed in, is returned */
+  def findManyById(ids: Seq[String], limit: Int = 200)(implicit ct: ClassTag[A]): ResultA[Seq[A]] =
+    findManyByField(idFieldName, ids, limit)
+
+  /** Finds many entries that matches on a field -> Seq[value] combination. Every entry for which the selected field matches any of the values is returned */
+  def findManyByField[F >: AnyVal](fieldName: String, values: Seq[F], limit: Int = 200)(implicit ct: ClassTag[A]): ResultA[Seq[A]] = {
+    val filter = filterOnField(fieldName, values).excludeDeleted
+    findManyByQuery(filter, limit)
+  }
+
+  def getByMap[F >: AnyVal](fieldsValuesMap: Map[String, F])(implicit ct: ClassTag[A]): ResultA[A] = {
+    findOneByFields(fieldsValuesMap)
+      .map(_.flatMap(_.liftR(s"Entity with lookup on fields '${fieldsValuesMap.keySet.mkString(",")}' not found")))
+  }
+
+  def findOneByFields[F >: AnyVal](fieldsValuesMap: Map[String, F])(implicit ct: ClassTag[A]): ResultA[Option[A]] = {
+    findManyByFields(fieldsValuesMap, limit = 2)
+      .map(ensureOneOrNone(_, s"More than one entity entity matching on fields '${fieldsValuesMap.keySet.mkString(",")}' found"))
+  }
+
+  def findManyByFields[F >: AnyVal](fieldsValuesMap: Map[String, F], limit: Int = 200)(implicit ct: ClassTag[A]): ResultA[Seq[A]] = {
+    val filter = filterWithValuesMap(fieldsValuesMap).excludeDeleted
+    findManyByQuery(filter, limit)
+  }
+
+  def findOneByQuery(filter: Bson)(implicit ct: ClassTag[A]): ResultA[Option[A]] = {
+    findManyByQuery(filter, limit = 2)
+      .map(ensureOneOrNone(_, "More than one entity matching in findOneByQuery"))
+  }
+
+  def findAll(limit: Int)(implicit ct: ClassTag[A]): ResultA[Seq[A]] = {
+    def filter = empty().excludeDeleted
+    findManyByQuery(filter, limit)
+  }
+
+  def findManyByQuery(filter: Bson, limit: Int = 200)(implicit ct: ClassTag[A]): ResultA[Seq[A]] = {
+    collection
+      .innerMap { _.find[A](filter)
+        .limit(limit)
+        .collect()
+      }
+      .runToResultA
+  }
+
+  private def ensureOneOrNone(result: Result[Seq[A]], errorMessage: String): Result[Option[A]] = {
+    result match {
+      case Right(result::Nil) => Result.right(Some(result))
+      case Right(Nil)         => Result.right(None)
+      case Left(err)          => Result.left(err)
+      case _                  => Result.left(errorMessage)
+    }
+  }
+
+  /** UPDATE */
+
+
+  //  /**
+  //   * SET (UPDATE
+  //   */
+  //  /**
+  //   * Updates the document with given id's targeted field with provided value[String]
+  //   */
+  //  def setFieldById(id: String, setField: String, newValue: AnyVal)(implicit ct: ClassTag[A], f: Formats, m: Manifest[A]): Task[Either[ErrorLoad,Boolean]] = {
+  //    val filter = and(equal("id", id), equal("deleted", false))
+  //    val update = set(setField, newValue)
+  //    val dbFuture = collection
+  //      .updateOne(filter, update)
+  //      .toFuture()
+  //    runDbFuture(dbFuture).map(_.map(res => res.wasAcknowledged()))
+  //  }
+  //
+  //  def setFieldByTargetField(targetField: String, targetVal: AnyVal, setField: String, setValue: AnyVal)(implicit ct: ClassTag[A], f: Formats, m: Manifest[A]): Result[UpdateResult] = {
+  //    val filter = and(equal(targetField, targetVal), equal("deleted", false))
+  //    val update = set(setField, setValue)
+  //    val dbFuture = collection
+  //      .updateMany(filter, update)
+  //      .toFuture()
+  //    runDbFuture(dbFuture)
+  //  }
+  //
+  //  /**
+  //   * Updates multiple documents meeting the a targeted field & predicates
+  //   */
+  //  def setFieldByTargetFieldValues(targetField: String, targetValues: List[AnyVal], setField: String, setValue: AnyVal)(implicit ct: ClassTag[A], f: Formats, m: Manifest[A]): Task[Either[ErrorLoad,Boolean]] = {
+  //    val filter = and(in(targetField, targetValues.toSeq: _*), equal("deleted", false))
+  //    val update = set(setField, setValue)
+  //    val dbFuture = collection
+  //      .updateMany(filter, update)
+  //      .toFuture()
+  //    runDbFuture(dbFuture).map(_.map(res => res.wasAcknowledged()))
+  //  }
+  //
+  //  /**
+  //   * Updates multiple documents based on a custome filter provided
+  //   */
+  //  def setByFilter(filter: Bson, setField: String, setVal: Boolean)(implicit ct: ClassTag[A], f: Formats, m: Manifest[A]): Task[Either[ErrorLoad,Boolean]] = {
+  //    val update = set(setField, setVal)
+  //    val dbFuture = collection
+  //      .updateMany(filter, update)
+  //      .toFuture()
+  //    runDbFuture(dbFuture).map(_.map(res => res.wasAcknowledged()))
+  //  }
+  //
+
+
+//  def updateById(id: String) = {
+//    collection.innerMap(_.updateOne())
 //  }
-//
-//  /**
-//   * SET (UPDATE
-//   */
-//  /**
-//   * Updates the document with given id's targeted field with provided value[String]
-//   */
-//  def setFieldById(id: String, setField: String, newValue: AnyVal)(implicit ct: ClassTag[A], f: Formats, m: Manifest[A]): Task[Either[ErrorLoad,Boolean]] = {
-//    val filter = and(equal("id", id), equal("deleted", false))
-//    val update = set(setField, newValue)
-//    val dbFuture = collection
-//      .updateOne(filter, update)
-//      .toFuture()
-//    runDbFuture(dbFuture).map(_.map(res => res.wasAcknowledged()))
-//  }
-//
-//  def setFieldByTargetField(targetField: String, targetVal: AnyVal, setField: String, setValue: AnyVal)(implicit ct: ClassTag[A], f: Formats, m: Manifest[A]): Result[UpdateResult] = {
-//    val filter = and(equal(targetField, targetVal), equal("deleted", false))
-//    val update = set(setField, setValue)
-//    val dbFuture = collection
-//      .updateMany(filter, update)
-//      .toFuture()
-//    runDbFuture(dbFuture)
-//  }
-//
-//  /**
-//   * Updates multiple documents meeting the a targeted field & predicates
-//   */
-//  def setFieldByTargetFieldValues(targetField: String, targetValues: List[AnyVal], setField: String, setValue: AnyVal)(implicit ct: ClassTag[A], f: Formats, m: Manifest[A]): Task[Either[ErrorLoad,Boolean]] = {
-//    val filter = and(in(targetField, targetValues.toSeq: _*), equal("deleted", false))
-//    val update = set(setField, setValue)
-//    val dbFuture = collection
-//      .updateMany(filter, update)
-//      .toFuture()
-//    runDbFuture(dbFuture).map(_.map(res => res.wasAcknowledged()))
-//  }
-//
-//  /**
-//   * Updates multiple documents based on a custome filter provided
-//   */
-//  def setByFilter(filter: Bson, setField: String, setVal: Boolean)(implicit ct: ClassTag[A], f: Formats, m: Manifest[A]): Task[Either[ErrorLoad,Boolean]] = {
-//    val update = set(setField, setVal)
-//    val dbFuture = collection
-//      .updateMany(filter, update)
-//      .toFuture()
-//    runDbFuture(dbFuture).map(_.map(res => res.wasAcknowledged()))
-//  }
-//
-//  /**
-//   * FIND (READ)
-//   */
-//  def findByQuery[B](filter: Bson, returnFields: List[String] = List.empty[String])(implicit ct: ClassTag[B]): Result[Seq[B]] = {
-//    val dbFuture = collection
-//      .find[B](filter)
-//      .projection(fields(include(returnFields: _*), excludeId()))
-//      .collect()
-//      .toFuture
-//    runDbFuture(dbFuture)
-//  }
-//  def findByField(field: String, value: AnyVal)(implicit ct: ClassTag[A]): Result[Seq[A]] = {
-//    val filter = and(equal(field, value), equal("deleted", false))
-//    val dbFuture = collection
-//      .find[A](filter)
-//      .limit(1)
-//      .collect()
-//      .toFuture
-//    runDbFuture(dbFuture)
-//  }
-//  /**
-//   * Finds documents by filtering on a field.
-//   * Sorts them from latest to oldest
-//   */
-//  def findByFieldSorted(field: String, value: AnyVal)(implicit ct: ClassTag[A]): Result[Seq[A]] = {
-//    val filter = and(equal(field, value), equal("deleted", false))
-//    val dbFuture = collection
-//      .find[A](filter)
-//      .sort(equal("_id", -1))
-//      .collect()
-//      .toFuture
-//    runDbFuture(dbFuture)
-//  }
-//
-//  def findByFieldValues[B](field: String, values: List[AnyVal], returnFields: List[String] = List.empty[String])(implicit ct: ClassTag[B]): Result[Seq[B]] = {
-//    val dbFuture = collection
-//      .find[B](and(in(field, values.toSeq: _*), equal("deleted", false)))
-//      .projection(fields(include(returnFields: _*), excludeId()))
-//      .toFuture()
-//    runDbFuture(dbFuture)
-//  }
-//
-//  def findAll()(implicit ct: ClassTag[A]): Result[Seq[A]] = {
-//    val filter = equal("deleted", false)
-//    val dbFuture = collection
-//      .find[A](filter)
-//      .toFuture()
-//    runDbFuture(dbFuture)
-//  }
-//
-//  def findById(id: String)(implicit ct: ClassTag[A]): Task[Either[ErrorLoad,Option[A]]] = {
-//    val filter = and(equal("id", id), equal("deleted", false))
-//    val dbFuture = collection
-//      .find[A](filter)
-//      .limit(1)
-//      .collect()
-//      .toFuture
-//    runDbFuture(dbFuture).map(_.map(_.headOption))
-//  }
-//
-//  def findByIds(ids: List[String])(implicit ct: ClassTag[A]): Result[Seq[A]] = {
-//    val dbFuture = collection
-//      .find(and(in("id", ids.toSeq: _*), equal("deleted", false)))
-//      .toFuture()
-//    runDbFuture(dbFuture)
-//  }
-//
-//  def findByIds[B](ids: List[String], returnFields: List[String] = List.empty[String])(implicit ct: ClassTag[B]): Result[Seq[B]] = {
-//    val dbFuture = collection
-//      .find[B](and(in("id", ids.toSeq: _*), equal("deleted", false)))
-//      .projection(fields(include(returnFields: _*), excludeId()))
-//      .toFuture()
-//    runDbFuture(dbFuture)
-//  }
-//
+
+
+
+  /** DELETE */
+
+
+
+  //TODO implement DELETE verify check
+  def HARDDeleteById(id: String): ResultA[Unit] = {
+    collection
+      .innerMap {
+        _.deleteOne(equal("id", id))
+          .collect()
+      }.runToResultA
+      .mapToUnit
+  }
+
+
 //  /**
 //   * COUNT
 //   */
@@ -194,16 +247,7 @@ private[mongodb] trait MongoCrud[A] extends LoggingUtils {
 //      .toFuture
 //    runDbFuture(dbFuture).map(_.map(_>0))
 //  }
-//  /**
-//   * Gets the distinct values of the specified field name.
-//   */
-//  def distinctValuesPerField(fieldName: String)(implicit ct: ClassTag[String]): Result[Seq[String]] = {
-//    val dbFuture = collection
-//      .distinct[String](fieldName)
-//      .collect()
-//      .toFuture()
-//    runDbFuture(dbFuture)
-//  }
+
 //
 //
 //  /**
@@ -237,13 +281,7 @@ private[mongodb] trait MongoCrud[A] extends LoggingUtils {
 //    runDbFuture(dbFuture)
 //  }
 //
-  private def runDbFuture[A](dbFuture: Future[A]): ResultA[A] = {
-    Task
-      .deferFuture(dbFuture)
-      .attempt
-      .map(_.left.map(Fault("Error executing Mongo operation", _)))
-      .doOnFinish(logOutcome)
-  }
+
 //
 //  private def replacementWithId(doc: A, id: String)(implicit f: Formats, m: Manifest[A]): A = {
 //    val newDoc = toDocument(doc).-("updatedAt", "id") ++ Document(
@@ -261,12 +299,5 @@ private[mongodb] trait MongoCrud[A] extends LoggingUtils {
 //    Serialization.read[A](a.toJson())
 //  }
 //
-  private def logOutcome(opt: Option[Throwable]): Task[Unit] = {
-    Task.apply {
-      opt match {
-        case None     => logInfo("Successfully executed operation.", "Mongo CRUD Operation")
-        case Some(ex) => logError(s"Error executing operation with message '${ex.getMessage}'", "Mongo CRUD Operation")
-      }
-    }
-  }
+
 }

@@ -12,7 +12,7 @@ class PeopleAkkaRouter(service: PeopleService)(implicit val scheduler: Scheduler
   override val apiVersion: String = "v1"
   override val baseUrlOpt: Option[String] = Some("people")
 
-  override lazy val routes: Route = getRandomPerson ~ getPerson ~ postPerson
+  override lazy val routes: Route = deletePerson ~ getPerson ~ postPerson
 
   def getPerson: RouteType = apiGet(Segment) { personId =>
     service
@@ -27,9 +27,9 @@ class PeopleAkkaRouter(service: PeopleService)(implicit val scheduler: Scheduler
       .completeWithResponse
   }
 
-  def getRandomPerson: Route = apiGet("random") {
+  def deletePerson: RouteType = apiDelete(Segment) { personId =>
     service
-      .generateRandomPerson
+      .deletePersonById(personId)
       .completeWithResponse
   }
 

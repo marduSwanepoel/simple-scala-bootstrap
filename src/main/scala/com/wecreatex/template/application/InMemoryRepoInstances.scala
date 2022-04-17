@@ -3,7 +3,6 @@ package com.wecreatex.template.application
 import com.wecreatex.template.domain.address.{AddressRepo, AddressService}
 import com.wecreatex.template.domain.person.{PeopleRepo, PeopleService}
 import com.wecreatex.template.infrastructure.domain.address.AddressInMemoryRepository
-import com.wecreatex.template.infrastructure.domain.person.PeopleInMemoryRepository
 
 /**
  * Contains the repository instances, provided via the instantiation of their infrastructure-specific implementations. 
@@ -15,6 +14,5 @@ import com.wecreatex.template.infrastructure.domain.person.PeopleInMemoryReposit
 trait InMemoryRepoInstances {
 
   protected lazy val addressRepo: AddressRepo = new AddressInMemoryRepository()
-//  lazy val peopleRepo: PeopleRepo = new PeopleInMemoryRepository
 
 }

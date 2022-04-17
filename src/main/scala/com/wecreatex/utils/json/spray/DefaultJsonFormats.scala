@@ -1,6 +1,7 @@
 package com.wecreatex.utils.json.spray
 
-import spray.json.{DefaultJsonProtocol, DeserializationException, JsString, JsValue, RootJsonFormat, deserializationError}
+import spray.json.{DefaultJsonProtocol, DeserializationException, JsNull, JsString, JsValue, RootJsonFormat, deserializationError}
+
 import java.time.{LocalDate, OffsetDateTime, Period}
 import scala.util.Try
 
@@ -25,6 +26,16 @@ trait DefaultJsonFormats extends DefaultJsonProtocol {
   //      .atZoneSameInstant(UTCZone)
   //      .toOffsetDateTime
   //  }
+
+  implicit object UnitFormat extends RootJsonFormat[Unit] {
+
+    override def write(obj: Unit): JsValue = JsNull
+
+    override def read(json: JsValue): Unit = json match {
+      case JsNull => ()
+      case _ => deserializationError("Invalid JSON received, expected: Unit")
+    }
+  }
 
   implicit object PeriodFormat extends RootJsonFormat[Period] {
 

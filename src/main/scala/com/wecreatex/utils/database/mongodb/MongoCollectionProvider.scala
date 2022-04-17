@@ -1,6 +1,5 @@
 package com.wecreatex.utils.database.mongodb
 
-import com.wecreatex.utils.database.mongodb.MongoImplicits._
 import com.wecreatex.utils.transport.{Result, ResultA}
 import com.wecreatex.utils.transport.TransportImplicits._
 import org.mongodb.scala.{MongoCollection, MongoDatabase}
